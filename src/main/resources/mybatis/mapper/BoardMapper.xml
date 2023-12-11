@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	
+	<mapper namespace="com.study.springboot.dao.BoardDao">
+	
+		<select id="getAllPosts" resultType="com.study.springboot.dto.BoardDto">
+	        SELECT * FROM FBOARD order by fDate desc
+	    </select>
+	    
+	    <select id="getPost" parameterType="int" resultType="com.study.springboot.dto.BoardDto">
+	        SELECT * FROM FBOARD WHERE FID = #{fId}
+	    </select>
+	    
+	    <insert id="createPost" parameterType="com.study.springboot.dto.BoardDto">
+		    INSERT INTO FBOARD (FID, FTITLE, FCONTENT, MID, MNICK, FFILENAME, FFILEPATH)
+		    VALUES (fBoard_fId_seq.nextval, #{fTitle, jdbcType=VARCHAR}, #{fContent, jdbcType=VARCHAR}, #{mId, jdbcType=VARCHAR}, #{mNick, jdbcType=VARCHAR},#{fFilename, jdbcType=VARCHAR}, #{fFilepath, jdbcType=VARCHAR})
+		</insert>
+	    
+	    <update id="updatePost" parameterType="com.study.springboot.dto.BoardDto">
+	        UPDATE FBOARD SET FTITLE = #{fTitle}, FCONTENT = #{fContent}, MNICK = #{mNick}, FFILENAME = #{fFilename}, FFILEPATH = #{fFilepath}
+	        WHERE FID = #{fId}
+	    </update>
+	    
+	    <delete id="deletePost" >
+		    DELETE FROM FBOARD WHERE FID = #{_fId}
+		</delete>
+		
+		<update id="upHit" >
+		    update fBoard set fHit = fHit + 1 where fId = #{_fId}
+		</update>
+		
+		<update id="modifyBoard" >
+		    update fBoard set fTitle = #{_fTitle}, fContent = #{_fContent},
+		    				  fFileName = #{_fFileName}, fFilePath = #{_fFilePath} where fId = #{_fId}
+		</update>
+		
+		<select id="myChart" resultType="com.study.springboot.dto.BoardDto">
+	        select * FROM fBoard where mId = #{item1} order by fDate asc
+	    </select>
+	    
+	    <update id="updateMem" parameterType="java.util.HashMap">
+			update fBoard set mNick = #{item3} where mId = #{item1}
+		</update>
+		
+		<select id="getPostsByPage" parameterType="map" resultType="com.study.springboot.dto.BoardDto">
+		    SELECT * FROM (
+		        SELECT rownum rnum, FBOARD.* FROM (
+		            SELECT * FROM FBOARD ORDER BY FDATE DESC
+		        ) FBOARD WHERE rownum &lt;= #{start} + #{count}
+		    ) WHERE rnum &gt; #{start}
+		</select>
+		
+		<select id="searchPosts" resultType="com.study.springboot.dto.BoardDto">
+		    SELECT * FROM (
+		        SELECT rownum rnum, FBOARD.* FROM (
+		            SELECT * FROM FBOARD WHERE ${_select} LIKE #{_query} ORDER BY FDATE DESC
+		        ) FBOARD WHERE rownum &lt;= #{start} + #{count}
+		    ) WHERE rnum &gt; #{start}
+		</select>
+		
+		<select id="getBestPostsByPage" parameterType="map" resultType="com.study.springboot.dto.BoardDto">
+		    SELECT * FROM (
+		        SELECT rownum rnum, FBOARD.*, (SELECT COUNT(*) FROM B_GOODBAD WHERE FID = FBOARD.FID AND GLIKE = 'good') AS totalLikeCount FROM (
+		            SELECT * FROM FBOARD WHERE (SELECT COUNT(*) FROM B_GOODBAD WHERE FID = FBOARD.FID AND GLIKE = 'good') >= 2 ORDER BY FDATE DESC
+		        ) FBOARD WHERE rownum &lt;= #{start} + #{count}
+		    ) WHERE rnum &gt; #{start}
+		</select>
+		
+		<select id="getBestPostsByPageSearch" parameterType="map" resultType="com.study.springboot.dto.BoardDto">
+		    SELECT * FROM (
+		        SELECT rownum rnum, FBOARD.*, (SELECT COUNT(*) FROM B_GOODBAD WHERE FID = FBOARD.FID AND GLIKE = 'good') AS totalLikeCount FROM (
+		            SELECT * FROM FBOARD WHERE (SELECT COUNT(*) FROM B_GOODBAD WHERE FID = FBOARD.FID AND GLIKE = 'good') >= 2 AND ${_select} LIKE #{_query} ORDER BY FDATE DESC
+		        ) FBOARD WHERE rownum &lt;= #{start} + #{count}
+		    ) WHERE rnum &gt; #{start}
+		</select>
+		
+		<select id="getTotalCount" resultType="int">
+		    SELECT COUNT(*) FROM FBOARD
+		</select>
+		
+		<select id="getTotalCountSearch" resultType="int">
+		    SELECT COUNT(*) FROM FBOARD WHERE ${_select} LIKE #{_query} 
+		</select>
+		
+		<select id="getTotalCountBestPosts" resultType="int">
+		    SELECT COUNT(*) FROM FBOARD WHERE (SELECT COUNT(*) FROM B_GOODBAD WHERE FID = FBOARD.FID AND GLIKE = 'good') >= 2
+		</select>
+		
+		<select id="getTotalCountBestPostsSearch" resultType="int">
+		    SELECT COUNT(*) FROM FBOARD WHERE (SELECT COUNT(*) FROM B_GOODBAD WHERE FID = FBOARD.FID AND GLIKE = 'good') >= 2 and ${_select} LIKE #{_query} 
+		</select>
+		
+		<delete id="deleteBoard">
+			delete from fboard where fId = #{_fId}
+		</delete>
+		
+		<select id="getTopRecommendedPosts" resultType="com.study.springboot.dto.BoardDto">
+		    <![CDATA[
+		    SELECT * FROM (
+		        SELECT FBOARD.*, (SELECT COUNT(*) FROM B_GOODBAD WHERE FID = FBOARD.FID AND GLIKE = 'good') AS totalLikeCount
+		        FROM FBOARD ORDER BY totalLikeCount DESC
+		    ) WHERE ROWNUM <= #{count}
+		    ]]>
+		</select>
+		
+		<select id="getMyBoardPage" parameterType="map" resultType="com.study.springboot.dto.BoardDto">
+		    SELECT * FROM (
+		        SELECT rownum rnum, FBOARD.* FROM (
+		            SELECT * FROM FBOARD WHERE MID = #{item1} ORDER BY FDATE DESC
+		        ) FBOARD WHERE rownum &lt;= #{item2} + #{item3}
+		    ) WHERE rnum &gt; #{item2}
+		</select>
+		
+		<select id="getTotalCountMyBoardPage" resultType="int">
+		    SELECT COUNT(*) FROM FBOARD WHERE MID = #{_mId}
+		</select>
+		
+		<select id="getAllPostsPage" parameterType="map" resultType="com.study.springboot.dto.BoardDto">
+	    SELECT * FROM (
+	        SELECT rownum rnum, FBOARD.* FROM (
+	            SELECT * FROM FBOARD ORDER BY FDATE DESC
+	        ) FBOARD WHERE rownum &lt;= #{item2} + #{item3}
+	    ) WHERE rnum &gt; #{item2}
+		</select>
+		
+		<select id="getTotalCountAllPostsPage" resultType="int">
+		    SELECT COUNT(*) FROM FBOARD
+		</select>
+		
+		<select id="getAllPostsSearch" resultType="com.study.springboot.dto.BoardDto">
+			    SELECT * FROM (
+			        SELECT rownum rnum, FBOARD.* FROM (
+			            SELECT * FROM FBOARD WHERE ${_search_type} LIKE #{_query} ORDER BY FDATE DESC
+			        ) FBOARD WHERE rownum &lt;= #{_start} + #{_count}
+			    ) WHERE rnum &gt; #{_start}
+		</select>
+		
+		<select id="getTotalCountAllPostsSearch" resultType="int">
+		    SELECT COUNT(*) FROM FBOARD WHERE ${_search_type} LIKE #{_query}
+		</select>
+		
+	</mapper>

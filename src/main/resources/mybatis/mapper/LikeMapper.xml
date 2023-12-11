@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	
+	<mapper namespace="com.study.springboot.dao.LikeDao">
+
+		<select id="checkGoodBad">
+			select gLike from B_goodBad where mId = #{item1} and fId = #{item2}
+		</select>
+		
+		<insert id="goodBadInsertDao" parameterType="java.util.HashMap"> 
+			insert into B_goodBad (gId, mId, fId, gLike, gDate) 
+			values (B_GoodBad_gId_seq.nextval, #{item1}, #{item2}, #{item3}, SYSDATE)
+		</insert>
+		
+		<delete id="goodBadDeleteDao" parameterType="java.util.HashMap"> 
+			delete from B_goodBad where mId = #{item1} and fId = #{item2}
+		</delete>
+		
+		<select id="countGoodDao" >
+			select count(*) from B_goodBad where fId = #{_fId} and gLike = 'good'
+		</select>
+		
+		<select id="countBadDao" >
+			select count(*) from B_goodBad where fId = #{_fId} and gLike = 'bad'
+		</select>
+	
+	</mapper>

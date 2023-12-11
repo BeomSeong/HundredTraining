@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	
+	<mapper namespace="com.study.springboot.dao.TrainingDao">
+		<select id="Chart" resultType="com.study.springboot.dto.TrainingDto">
+	        select * FROM Training where mId = #{item1} order by tDate asc
+	    </select>
+	    
+	    <insert id="Training" parameterType="java.util.HashMap">
+	    	insert into training (tId, mId, tPushNum, tSitupNum, tPullupNum, tRunDist, tDate)
+			values (training_tId_seq.nextval, #{item1}, #{item2}, #{item3}, #{item4}, #{item5}, #{item6})
+	    </insert>
+	    
+		<select id="selData" parameterType="java.util.HashMap" resultType="com.study.springboot.dto.TrainingDto">
+		    select * from Training where tDate like #{_yearMonth} and mId = #{_mId} order by tDate asc
+		</select>
+
+	</mapper>

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	
+	<mapper namespace="com.study.springboot.dao.ReportDao">
+		<select id="Report" resultType="com.study.springboot.dto.ReportDto">
+			select * from b_report order by rStatus desc, rDate desc
+		</select>
+
+		<select id="reportCount" >
+			select count(*) from B_report where fId = #{_fId}
+		</select>
+		
+	    <insert id="insertReport" > 
+			insert into B_Report (rId, rCategory, rTitle, rContent, mId, fId)
+			values (B_report_rId_seq.nextval, #{_rCategory}, #{_rTitle}, #{_rContent}, #{_mId}, #{_fId})
+		</insert>
+		
+		<update id="reportCheck" parameterType="java.util.HashMap">
+			update b_report set rStatus = ('Check') where rId = #{item1}
+		</update>
+	
+		<update id="reportNoCheck" parameterType="java.util.HashMap">
+			update b_report set rStatus = default where rId = #{item1}
+		</update>
+		
+		<select id="getReportPage" parameterType="map" resultType="com.study.springboot.dto.ReportDto">
+	    SELECT * FROM (
+	        SELECT rownum rnum, B_Report.* FROM (
+	            SELECT * FROM B_Report ORDER BY RDATE DESC
+	        ) B_Report WHERE rownum &lt;= #{item2} + #{item3}
+	    ) WHERE rnum &gt; #{item2} order by rStatus desc, rDate desc
+		</select>
+		
+		<select id="getTotalCountReportPage" resultType="int">
+		    SELECT COUNT(*) FROM B_Report
+		</select>
+		
+		<select id="getReportSearch" resultType="com.study.springboot.dto.ReportDto">
+			    SELECT * FROM (
+			        SELECT rownum rnum, B_Report.* FROM (
+			            SELECT * FROM B_Report WHERE ${_search_type} LIKE #{_query} ORDER BY RDATE DESC
+			        ) B_Report WHERE rownum &lt;= #{_start} + #{_count}
+			    ) WHERE rnum &gt; #{_start} order by rStatus desc, rDate desc
+		</select>
+		
+		<select id="getTotalCountReportSearch" resultType="int">
+		    SELECT COUNT(*) FROM B_Report WHERE ${_search_type} LIKE #{_query}
+		</select>
+		
+
+	</mapper>

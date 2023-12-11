@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.study.springboot.dao.ShopBoardDao">
+  
+    <select id="getProductInfo" parameterType="com.study.springboot.dto.ShopBoardDto">
+	    SELECT * FROM SHOP WHERE SID = #{sId}
+	</select>
+    
+    <select id="getAllProducts" parameterType="com.study.springboot.dto.ShopBoardDto">
+        SELECT * FROM SHOP order by sDate desc
+    </select>
+    
+    <insert id="hShopProductInsert" >
+	    INSERT INTO SHOP (sId, sTitle, sContent, sMoney, sfileName, sfilePath, sCategory)
+	    VALUES (shop_sId_seq.nextval, #{_sTitle}, #{_sContent}, #{_sMoney}, #{_fileName}, #{_filePath}, #{_sCategory})
+	</insert>
+	
+	<delete id="deleteShop">
+		delete from SHOP where sId = #{_sId}
+	</delete>
+	
+	<select id="getRandomProducts" parameterType="com.study.springboot.dto.ShopBoardDto">
+	    SELECT * FROM (SELECT * FROM SHOP ORDER BY DBMS_RANDOM.VALUE) WHERE ROWNUM &lt;= #{_count}
+	</select>
+	
+	<select id="shopModify" parameterType="com.study.springboot.dto.ShopBoardDto">
+	     SELECT * FROM SHOP WHERE SID = ${_sId}
+	</select>
+	
+	<update id="modifyShopBoard" parameterType="com.study.springboot.dto.ShopBoardDto">
+		 update shop set sTitle = #{_sTitle}, sContent = #{_sContent}, sfileName = #{_fileName},
+		 				 sfilePath = #{_filePath}, sCategory = #{_sCategory} where sId=#{_sId}
+	</update>
+	
+	<select id="getAllProductsPage" parameterType="map" resultType="com.study.springboot.dto.ShopBoardDto">
+	    SELECT * FROM (
+	        SELECT rownum rnum, SHOP.* FROM (
+	            SELECT * FROM SHOP ORDER BY SDATE DESC
+	        ) SHOP WHERE rownum &lt;= #{item2} + #{item3}
+	    ) WHERE rnum &gt; #{item2}
+	</select>
+	
+	<select id="getTotalCountAllProductsPage" resultType="int">
+	    SELECT COUNT(*) FROM SHOP
+	</select>
+	
+	<select id="getAllProductsSearch" resultType="com.study.springboot.dto.ShopBoardDto">
+		    SELECT * FROM (
+		        SELECT rownum rnum, SHOP.* FROM (
+		            SELECT * FROM SHOP WHERE ${_search_type} LIKE #{_query} ORDER BY SDATE DESC
+		        ) SHOP WHERE rownum &lt;= #{_start} + #{_count}
+		    ) WHERE rnum &gt; #{_start}
+	</select>
+	
+	<select id="getTotalCountAllProductsSearch" resultType="int">
+	    SELECT COUNT(*) FROM SHOP WHERE ${_search_type} LIKE #{_query}
+	</select>
+	
+	
+
+								
+
+</mapper>

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	
+	<mapper namespace="com.study.springboot.dao.CommentDao">
+		<select id="CommentList" resultType="com.study.springboot.dto.CommentDto">
+	        select cId, cContent, mId, mNick, fId, cDate, cGroup, cStep, cIndent 
+			from B_Comment natural join member
+			order by cDate DESC
+	    </select>
+	    
+	    <select id="BoardCommentList" resultType="com.study.springboot.dto.CommentDto">
+	    	select cId, cContent, mId, mNick, fId, cDate, cGroup, cStep, cIndent 
+			from B_Comment natural join member
+			where fId = #{_fId}
+			order by cDate DESC
+	    </select>
+	    
+	    <insert id="insertComment" > 
+			insert into B_Comment (CID, cContent, mId, fId)
+			values (B_COMMENT_cId_seq.nextval, #{_cContent}, #{_mId}, #{_fId})
+		</insert>
+		
+		<update id="deleteComment" > 
+			update B_Comment set cContent=#{_exComment}
+			where cId = #{_cId}
+		</update>
+		
+		<select id="commentCount" >
+			select count(*) from B_Comment where fId = #{_fId}
+		</select>
+		
+		<select id="myChart" resultType="com.study.springboot.dto.CommentDto">
+        	select * FROM b_comment where mId = #{item1} order by cDate asc
+   		</select>
+   		
+   		<select id="getMyCommentPage" parameterType="map" resultType="com.study.springboot.dto.CommentDto">
+		    SELECT * FROM (
+		        SELECT rownum rnum, B_COMMENT.* FROM (
+		            SELECT * FROM B_COMMENT WHERE MID = #{item1} ORDER BY CDATE DESC
+		        ) B_COMMENT WHERE rownum &lt;= #{item2} + #{item3}
+		    ) WHERE rnum &gt; #{item2}
+		</select>
+		
+		<select id="getTotalCountMyCommentPage" resultType="int">
+		    SELECT COUNT(*) FROM B_COMMENT WHERE MID = #{_mId}
+		</select>
+		
+		<select id="getCommentListPage" parameterType="map" resultType="com.study.springboot.dto.CommentDto">
+	    SELECT * FROM (
+	        SELECT rownum rnum, B_COMMENT.* FROM (
+	            select cId, cContent, mId, mNick, fId, cDate, cGroup, cStep, cIndent 
+				from B_Comment natural join member
+				order by cDate DESC
+	        ) B_COMMENT WHERE rownum &lt;= #{item2} + #{item3}
+	    ) WHERE rnum &gt; #{item2}
+		</select>
+		
+		<select id="getTotalCountCommentListPage" resultType="int">
+		    SELECT COUNT(*) 
+		    	FROM (select cId, cContent, mId, mNick, fId, cDate, cGroup, cStep, cIndent 
+					from B_Comment natural join member)
+		</select>
+		
+		<select id="getCommentListSearch" resultType="com.study.springboot.dto.CommentDto">
+			    SELECT * FROM (
+			        SELECT rownum rnum, B_COMMENT.* FROM (
+			            select cId, cContent, mId, mNick, fId, cDate, cGroup, cStep, cIndent 
+							from B_Comment natural join member
+				 				WHERE ${_search_type} LIKE #{_query} ORDER BY CDATE DESC
+			        ) B_COMMENT WHERE rownum &lt;= #{_start} + #{_count}
+			    ) WHERE rnum &gt; #{_start}
+		</select>
+		
+		<select id="getTotalCountCommentListSearch" resultType="int">
+		    SELECT COUNT(*) FROM (select cId, cContent, mId, mNick, fId, cDate, cGroup, cStep, cIndent 
+				from B_Comment natural join member)
+					WHERE ${_search_type} LIKE #{_query}
+		</select>
+	</mapper>

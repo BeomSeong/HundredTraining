@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	
+<mapper namespace="com.study.springboot.dao.MemberDao">
+    
+   	<insert id="joinDao" parameterType="java.util.HashMap"> 
+		insert into member (mId, memId, mNick, mPwd, mEmail, mPhone)
+		values (member_mId_seq.nextval, #{item1}, #{item2}, #{item3}, #{item4}, #{item5})
+	</insert>
+	
+	<select id="loginDao" parameterType="java.util.HashMap"> 
+		select mPwd from member where memId = #{item1}
+	</select>
+	
+	<insert id="joinSnsUser" parameterType="java.util.HashMap"> 
+		insert into member (mId, mNick, mPwd, mEmail)
+			values (member_mId_seq.nextval, 'user'||member_mId_seq.nextval, #{item1}, #{item2})
+	</insert>
+	
+	<select id="confirmId">
+		select count(*) from member where memId = #{item1}
+	</select>
+	
+	<select id="confirmSnsUser">
+		select count(*) from member where mPwd = #{item1}
+	</select>
+	
+	<select id="findIdDao" parameterType="java.util.HashMap"> 
+		select memId from member where mPhone = #{item1}
+	</select>
+	
+	<select id="checkPhoneExist">
+		select count(*) from member where mPhone = #{item1}
+	</select>
+	
+	<select id="memInfo" resultType="com.study.springboot.dto.MemberDto">
+		select * from member where memId = #{item1}
+	</select>
+	
+	<select id="getMemberInfo" resultType="com.study.springboot.dto.MemberDto">
+		select * from member where mId = #{_mId}
+	</select>
+	
+	<select id="memSnsInfo" resultType="com.study.springboot.dto.MemberDto">
+		select * from member where mPwd = #{_pw}
+	</select>
+	
+	<update id="pwModify" parameterType="java.util.HashMap">
+		update member set mPwd = #{item2} where mId = #{item1}
+	</update>
+	
+	<update id="pwModifyLogin" parameterType="java.util.HashMap">
+		update member set mPwd = #{item2} where memId = #{item1}
+	</update>
+	
+	<delete id="deleteDao">
+		delete from member where mId = #{_mId}
+	</delete>
+	
+	<update id="updateMem" parameterType="java.util.HashMap">
+		update member set memId = #{item2}, mNick = #{item3}, mEmail = #{item4}
+			where mId = #{item1}
+	</update>
+	
+	<select id="pwCheck" parameterType="java.util.HashMap">
+		select * from member where memId = #{item1} and mPwd = #{item2}
+	</select>
+	
+	<select id="hostLoginDao" parameterType="java.util.HashMap"> 
+		select mPwd from member where memId = #{item1} and mAdmin = #{item2}
+	</select>
+	
+	<select id="confirmAdmin" parameterType="java.util.HashMap">
+		select count(*) from member where memId = #{item1} and mAdmin = #{item2}
+	</select>
+
+	<select id="memberList" parameterType="com.study.springboot.dto.MemberDto">
+		select * from member order by mId asc
+	</select>
+	
+	<update id="memberBanInsert" parameterType="java.util.HashMap">
+		update member set mBan = ('Ban') where mId = #{item1}
+	</update>
+
+	<update id="memberBanDelete" parameterType="java.util.HashMap">
+		update member set mBan = default where mId = #{item1}
+	</update>
+	
+	<update id="memberAdminInsert" parameterType="java.util.HashMap">
+		update member set mAdmin = ('admin') where mId = #{item1}
+	</update>
+
+	<update id="memberAdminDelete" parameterType="java.util.HashMap">
+		update member set mAdmin = ('member') where mId = #{item1}
+	</update>
+	
+	<select id="getMemberListPage" parameterType="map" resultType="com.study.springboot.dto.MemberDto">
+	    SELECT * FROM (
+	        SELECT rownum rnum, member.* FROM (
+	            SELECT * FROM member ORDER BY MDATE DESC
+	        ) member WHERE rownum &lt;= #{item2} + #{item3}
+	    ) WHERE rnum &gt; #{item2}
+	</select>
+	
+	<select id="getTotalCountMemberListPage" resultType="int">
+	    SELECT COUNT(*) FROM member
+	</select>
+	
+	<select id="getMemberListSearch" resultType="com.study.springboot.dto.MemberDto">
+		    SELECT * FROM (
+		        SELECT rownum rnum, member.* FROM (
+		            SELECT * FROM member WHERE ${_search_type} LIKE #{_query} ORDER BY MDATE DESC
+		        ) member WHERE rownum &lt;= #{_start} + #{_count}
+		    ) WHERE rnum &gt; #{_start}
+	</select>
+	
+	<select id="getTotalCountMemberListSearch" resultType="int">
+	    SELECT COUNT(*) FROM member WHERE ${_search_type} LIKE #{_query}
+	</select>
+	
+	
+</mapper>
